@@ -7,6 +7,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
   minimizeWindow: () => ipcRenderer.invoke('minimize-window'),
   maximizeWindow: () => ipcRenderer.invoke('maximize-window'),
   closeWindow: () => ipcRenderer.invoke('close-window'),
+  openVideoFolder: () => ipcRenderer.invoke('open-video-folder'),
   onFloatingHudClosed: (callback) => {
     const handler = () => callback();
     ipcRenderer.on('floating-hud-closed', handler);

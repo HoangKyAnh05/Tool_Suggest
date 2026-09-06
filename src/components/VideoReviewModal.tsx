@@ -93,9 +93,14 @@ export const VideoReviewModal: React.FC<VideoReviewModalProps> = ({
 
   const handleOpenFolder = async () => {
     try {
-      await fetch('http://localhost:49200/api/video/open-folder');
+      if ((window as any).electronAPI?.openVideoFolder) {
+        await (window as any).electronAPI.openVideoFolder();
+      } else {
+        await fetch('http://localhost:49200/api/video/open-folder');
+      }
     } catch (e) {
       console.error(e);
+      await fetch('http://localhost:49200/api/video/open-folder').catch(() => {});
     }
   };
 

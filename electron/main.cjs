@@ -1,5 +1,7 @@
-const { app, BrowserWindow, ipcMain, screen } = require('electron');
+const { app, BrowserWindow, ipcMain, screen, shell } = require('electron');
 const path = require('path');
+const fs = require('fs');
+const os = require('os');
 const net = require('net');
 const QRCode = require('qrcode');
 const { startRemoteHub, getLocalIpAddress } = require('../server/remote-hub.cjs');
@@ -200,3 +202,26 @@ ipcMain.handle('maximize-window', () => {
 ipcMain.handle('close-window', () => {
   if (mainWindow && !mainWindow.isDestroyed()) mainWindow.close();
 });
+
+ipcMain.handle('open-video-folder', async () => {
+  const targetDir = fs.existsSync('E:\\OBSVID') ? 'E:\\OBSVID' : path.join(os.homedir(), 'Videos');
+  try {
+    if (!fs.existsSync(targetDir)) {
+      fs.mkdirSync(targetDir, { recursive: true });
+    }
+    const err = await shell.openPath(targetDir);
+    if (err) {
+      console.log('[Main] shell.openPath error, fallback to spawn:', err);
+      const { spawn } = require('child_process');
+      const child = spawn('explorer.exe', [targetDir], { detached: true, stdio: 'ignore' });
+      child.unref();
+    }
+  } catch (e) {
+    console.error('[Main] Failed to open video folder:', e);
+    const { spawn } = require('child_process');
+    const child = spawn('explorer.exe', [targetDir], { detached: true, stdio: 'ignore' });
+    child.unref();
+  }
+  return { success: true, folder: targetDir };
+});
+

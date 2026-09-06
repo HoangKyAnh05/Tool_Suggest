@@ -189,9 +189,17 @@ function startRemoteHub(port = DEFAULT_PORT) {
 
     // Video Review API: Open folder in Windows Explorer
     if (url.pathname === '/api/video/open-folder') {
-      const { exec } = require('child_process');
+      const { spawn } = require('child_process');
       const targetDir = fs.existsSync('E:\\OBSVID') ? 'E:\\OBSVID' : path.join(os.homedir(), 'Videos');
-      exec(`explorer.exe "${targetDir}"`);
+      try {
+        if (!fs.existsSync(targetDir)) {
+          fs.mkdirSync(targetDir, { recursive: true });
+        }
+        const child = spawn('explorer.exe', [targetDir], { detached: true, stdio: 'ignore' });
+        child.unref();
+      } catch (err) {
+        console.error('Error opening folder:', err);
+      }
       res.writeHead(200, { 'Content-Type': 'application/json' });
       res.end(JSON.stringify({ success: true, folder: targetDir }));
       return;
