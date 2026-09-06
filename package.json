@@ -7,6 +7,7 @@
     "dev": "vite",
     "studio": "node scripts/start-studio.cjs",
     "build": "tsc -b && vite build",
+    "postinstall": "npm run build",
     "electron:dev": "electron .",
     "start": "node scripts/start-studio.cjs",
     "preview": "vite preview"
